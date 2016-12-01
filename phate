@@ -1,0 +1,70 @@
+#!/usr/bin/php
+<?php
+namespace Phate;
+/**
+ * PhateFramework batch executer
+ *
+ * @package PhateFramework 
+ * @access  public
+ * @author  Nobuo Tsuchiya <n_develop@m.tsuchi99.net>
+ * @create  2016/11/13
+ **/
+// Coreの読み込み
+include(realpath(dirname(__FILE__) . '/phateFrameWorks/base') . '/PhateCore.class.php');
+// 基礎設定
+ini_set('display_errors', 0);
+set_time_limit(0);
+mb_language('Ja');
+mb_internal_encoding('UTF-8');
+
+// 引数取得
+$options = [];
+$args = [];
+$optionKey = '';
+
+foreach ($argv as $v) {
+    //option の切り分け
+    if (preg_match('/^\-.+$/', $v)) {
+        $optionKey = '$v';
+    } else {
+        if ($optionKey !== '') {
+            $options[$optionKey] = $v;
+            $optionKey = '';
+        } else {
+            $args[] = $v;
+        }
+    }
+    // オプション別処理
+    switch ($v) {
+        case '-h' :
+        case '-?' :
+            showUsage();
+            exit();
+        case '-v' :
+            echo \Phate\Core::getVersion() . "\n";
+            exit();
+        default :
+            break;
+    }
+    
+    
+}
+
+
+function doBatch($appName, $className) {
+    // アプリ名
+    define('PROJECT_NAME', $appName);
+    $debug = false;
+    $instance = Core::getInstance(PROJECT_NAME, $debug);
+    $instance->doBatch($className);
+}
+
+function showUsage() {
+    echo "usage: \n";
+    echo "        phate [options] \n";
+    echo "        phate -b [projectName] [ClassName] \n";
+    echo "options:  \n";
+    echo "        -b      execute batch class \n";
+    echo "        -h,-?   show this usage \n";
+    echo "        -v      show framework version information \n";
+}

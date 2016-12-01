@@ -1,0 +1,35 @@
+namespace %%projectName%%;
+/**
+ * %%className%%Peerクラス
+ *
+ * %%tableName%%のO-RMapper取り扱い用クラス(MasterData with APCu)
+ *
+ * @package %%projectName%%
+ * @access public
+ **/
+class %%className%%Peer
+{
+    const APC_PREFIX_RETRIEVE_ROW = '%%className%%:row:';
+
+    public static function retrieveByPk(%%pkeysArg%% $shardId)
+    {
+        $apcKey = self::APC_PREFIX_RETRIEVE_ROW . %%memkeyPkeys%%;
+        $obj = new %%className%%Orm();
+        if (($res = \Phate\Apc::get($apcKey, 'db'))) {
+            $obj->hydrate($res);
+            return $obj;
+        }
+        if (is_null($shardId)) {
+            throw new \Phate\DatabaseException('shardId empty');
+        }
+        $dbh = \Phate\DB::getInstanceByShardId('%%slaveDatabaseName%%', $shardId);
+        $params = [%%pkeys%%];
+        $sql = 'SELECT * FROM %%pureTableName%% WHERE %%pkeyWhere%%';
+        if (($row = $dbh->getRow($sql, $params)) === false) {
+            return false;
+        }
+        \Phate\Apc::set($apcKey, $row, 0, 'db');
+        $obj->hydrate($row);
+        return $obj;
+    }
+}

@@ -1,0 +1,25 @@
+namespace %%projectName%%;
+/**
+ * %%className%%Peerクラス
+ *
+ * %%tableName%%のO-RMapper取り扱い用クラス(ReadOnly)
+ *
+ * @package %%projectName%%
+ * @access public
+ **/
+class %%className%%Peer
+{
+
+    public static function retrieveByPk(%%pkeys%%)
+    {
+        $obj = new %%className%%Orm();
+        $dbh = \Phate\DB::getInstance('%%slaveDatabaseName%%');
+        $params = [%%pkeys%%];
+        $sql = 'SELECT * FROM %%pureTableName%% WHERE %%pkeyWhere%%';
+        if (($row = $dbh->getRow($sql, $params)) === false) {
+            return false;
+        }
+        $obj->hydrate($row);
+        return $obj;
+    }
+}

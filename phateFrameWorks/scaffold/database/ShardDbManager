@@ -1,0 +1,88 @@
+namespace %%projectName%%;
+/**
+ * ShardDbManagerクラス
+ *
+ * DataBaseのsharding取り扱い用クラスの例
+ *
+ * @package %%projectName%%
+ * @access public
+ **/
+class ShardDbManager extends \Phate\PhateModelBase
+{
+    static private $_localCacheShardIdUserId = [];
+    
+    /**
+     * shardIdを生成する。初期ユーザデータ作成用
+     * @param int $userId
+     * @return int
+     */
+    public static function makeShardIdByUserId($userId)
+    {
+        $numOfShard = \Phate\DB::getNumberOfShard('user_master');
+        return $userId % $numOfShard;
+    }
+    
+    /**
+     * ユーザIDからシャードIDを取得する。一件限定用
+     * @param int $userId
+     * @return type
+     */
+    public static function getShardIdByUserId($userId)
+    {
+        if (array_key_exists($userId, self::$_localCacheShardIdUserId)) {
+            $rtn = self::$_localCacheShardIdUserId[$userId];
+        } else {
+            $rtn = DBAccountControlPeer::retrieveByPk($userId)->getShardId();
+            self::$_localCacheShardIdUserId[$userId] = $rtn;
+        }
+        return $rtn;
+    }
+    
+    /**
+     * ユーザIDの配列からシャードIDの配列を取得する。
+     * @param array $userIds
+     * @return type
+     */
+    public static function getShardIdsByUserIds(array $userIds)
+    {
+        $rtn = [];
+        $targetUserIds = [];
+        foreach ($userIds as $userId) {
+            if (array_key_exists($userId, self::$_localCacheShardIdUserId)) {
+                $rtn[$userId] = self::$_localCacheShardIdUserId[$userId];
+            } else {
+                $targetUserIds[] = $userId;
+            }
+        }
+        if (!$targetUserIds) {
+            return $rtn;
+        }
+        $accounts = DBAccountControlPeer::getOrmsByUserIds($targetUserIds);
+        foreach ($accounts as $userId => $account) {
+            $rtn[$userId] = (int)$account->getShardId();
+            self::$_localCacheShardIdUserId[$userId] = (int)$account->getShardId();
+        }
+        return $rtn;
+    }
+    
+    /**
+     * ユーザIDの配列をシャードID別に分けた配列にして返す
+     * @param array $userIds
+     * @return array
+     */
+    public static function splitUserIdByShardId(array $userIds)
+    {
+        $userShardIds = self::getShardIdsByUserIds($userIds);
+        $maxShardId = \Phate\DB::getNumberOfShard('user_master') - 1;
+        $rtn = [];
+        for ($i = 0; $i <= $maxShardId; ++$i) {
+            $rtn[$i] = [];
+        }
+        foreach ($userShardIds as $userId => $shardId) {
+            $rtn[$shardId][] = $userId;
+        }
+        return $rtn;
+    }
+    
+    
+}

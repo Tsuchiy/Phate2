@@ -1,0 +1,23 @@
+{
+    "name": "phate",
+    "type": "metapackage",
+    "description": "THIS FILE IS NOT IN USE",
+    "keywords": ["framework"],
+    "homepage": "https://github.com/Tsuchiy/Phate",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "tsuchiy develop team",
+            "email": "develop@m.tsuchi99.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "fluent/logger": "1.*.*",
+        "twig/twig": "1.*.*"
+    },
+    "config": {
+        "vendor-dir": "./phateFrameWorks/vendor"
+    },
+    "minimum-stability": "dev"
+}

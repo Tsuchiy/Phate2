@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+
+    # Make sure directory listing is disabled
+    Options +FollowSymLinks -Indexes
+    RewriteEngine on
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    RewriteRule ^([^\/]+)\/([^\/]*)\/(.*)$ index.php?module=$1&controller=$2 [QSA,L,NE]
+
+</IfModule>

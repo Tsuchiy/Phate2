@@ -1,0 +1,26 @@
+namespace %%projectName%%;
+/**
+ * ThrownExceptionクラス
+ *
+ * 例外が投げられた時処理を行います
+ *
+ * @package %%projectName%%
+ **/
+
+class ThrownException extends \Phate\ThrownExceptionBase
+{
+    public function execute(\Exception $e)
+    {
+        if ($e instanceof \Phate\UnauthorizedException) {
+            \Phate\Response::setHttpStatus(\Phate\Response::HTTP_UNAUTHORIZED);
+            
+        } else {
+            \Phate\Response::setHttpStatus(\Phate\Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+        \Phate\Response::sendHeader();
+        if (\Phate\Core::isDebug()) {
+            var_dump($e);
+        }
+        exit();
+    }
+}

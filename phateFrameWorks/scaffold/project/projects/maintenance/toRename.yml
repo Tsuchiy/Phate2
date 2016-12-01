@@ -1,0 +1,9 @@
+AllowIP: 
+  - 0.0.0.0
+  - 127.0.0.1
+AllowUserID:
+  from: 0
+  to: 0
+  individual:
+    - 0
+    - 0
